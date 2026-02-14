@@ -1,3 +1,19 @@
-DDS: docker build . -t cr.yandex/crpgjuduk568j6pcpvif/dds_service:v2025-10-29-r101
+# DWH для агрегатора доставки еды
 
-CDM: docker build . -t cr.yandex/crpgjuduk568j6pcpvif/cdm_service:v2025-10-29-r100
+**Стек:** Python, Kafka, PostgreSQL, Docker, Data Vault 2.0
+
+## О проекте
+Два микросервиса для заполнения слоёв DDS и CDM. Сервисы читают данные из Kafka, выполняют преобразования по Data Vault 2.0 и загружают результаты в PostgreSQL.
+
+## Структура
+- `service_dds/` — сервис для детального слоя (хабы, сателлиты, линки)
+- `service_cdm/` — сервис для витрин (счётчики по продуктам и категориям)
+- `docker-compose.yaml` — оркестрация сервисов
+
+## Логика работы
+- **DDS-сервис** — читает заказы из Kafka, создаёт хабы, сателлиты с историей изменений (хэш-диффы), линки, отправляет обогащённые данные в Kafka
+- **CDM-сервис** — читает обогащённые заказы, обновляет витрины `user_product_counters` и `user_category_counters`
+
+## Запуск
+1. Создать файл `.env` с параметрами подключения (см. `.env.example`)
+2. Выполнить `docker-compose up -d`
